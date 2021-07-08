@@ -1,6 +1,6 @@
 const headerCityButton = document.querySelector('.header__city-button');
 
-let hash = location.hash;
+let hash = location.hash.substring(1);//получение hash
 
 if (localStorage.getItem('lomoda-location')) {
 	headerCityButton.textContent = localStorage.getItem('lomoda-location')
@@ -84,10 +84,15 @@ const getData = async () => {//Универсальная функция для 
 	}
 }
 
-const getGoods = callback => {//обработка данных
+const getGoods = (callback, value) => {//обработка данных
 	getData()
 		.then(data => {
-			callback(data);
+			if (value) {
+				callback(data.filter(item => item.category === value)) //возвращаем товар только по категориям
+			} else {
+				callback(data);
+			}
+
 		})
 		.catch(err => {
 			console.error(err)
@@ -147,7 +152,15 @@ try {
 		})
 
 	};
-	getGoods(renderGoodsList)
+
+	window.addEventListener('hashchange', () => {
+		hash = location.hash.substring(1)
+		getGoods(renderGoodsList, hash)
+
+	})
+
+
+	getGoods(renderGoodsList, hash)
 
 } catch (err) {
 	console.warn(err)
